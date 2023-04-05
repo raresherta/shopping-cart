@@ -1,0 +1,8 @@
+.shopping-cart {
+	border: 1px solid black !important;
+	position: relative;
+}
+
+.shopping-cart:hover {
+	background-color: lightgrey !important;
+}
