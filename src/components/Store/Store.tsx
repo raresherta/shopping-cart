@@ -1,24 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import StoreItem from '../StoreItem/StoreItem';
+import { useShoppingCart } from '../../context/ShoppingCartContext';
 
 const Store: React.FC = () => {
-	const [products, setProducts] = useState<any>([]);
+	const { getItems, products } = useShoppingCart();
 	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				const response = await fetch(
-					'https://man-shopping-cart-test.azurewebsites.net/api/Products'
-				);
-				const data = await response.json();
-				console.log('PRODUCTS', data);
-				setProducts(data);
-			} catch (error) {
-				console.error(error);
-			}
-		};
-
-		fetchData();
+		getItems();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (

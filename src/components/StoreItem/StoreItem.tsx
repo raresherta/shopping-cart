@@ -1,7 +1,8 @@
 import { Card, Button } from 'react-bootstrap';
 import { formatPrice } from '../../utils/formatPrice';
+import { useShoppingCart } from '../../context/ShoppingCartContext';
 
-interface Product {
+type Product = {
 	id: number;
 	name: string;
 	imageUrl: string;
@@ -9,10 +10,16 @@ interface Product {
 	wholesalePrice: number;
 	price: number;
 	categories: string[];
-}
+};
 
 export default function StoreItem({ id, name, imageUrl, price }: Product) {
-	const quantity = 0;
+	const {
+		getItemQuantity,
+		increaseCartQuantity,
+		decreaseCartQuantity,
+		removeFromCart
+	} = useShoppingCart();
+	const quantity = getItemQuantity(id);
 	return (
 		<Card className='h-100'>
 			<Card.Img
@@ -30,7 +37,10 @@ export default function StoreItem({ id, name, imageUrl, price }: Product) {
 				</Card.Title>
 				<div className='mt-auto'>
 					{quantity === 0 ? (
-						<Button className='bg-secondary w-100'>
+						<Button
+							className='bg-secondary w-100'
+							onClick={() => increaseCartQuantity(id)}
+						>
 							+ Add To Cart
 						</Button>
 					) : (
@@ -42,14 +52,28 @@ export default function StoreItem({ id, name, imageUrl, price }: Product) {
 								className='d-flex align-items-center justify-content-center'
 								style={{ gap: '.5rem' }}
 							>
-								<Button className='bg-secondary'>-</Button>
+								<Button
+									className='bg-secondary'
+									onClick={() => decreaseCartQuantity(id)}
+								>
+									-
+								</Button>
 								<div>
 									<span className='fs-3'>{quantity}</span> in
 									cart
 								</div>
-								<Button className='bg-secondary'>+</Button>
+								<Button
+									className='bg-secondary'
+									onClick={() => increaseCartQuantity(id)}
+								>
+									+
+								</Button>
 							</div>
-							<Button variant='danger' size='sm'>
+							<Button
+								variant='danger'
+								size='sm'
+								onClick={() => removeFromCart(id)}
+							>
 								Remove
 							</Button>
 						</div>
