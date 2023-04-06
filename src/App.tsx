@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import { Home } from './components/Home/Home';
-import { Store } from './components/Store/Store';
+import Store from './components/Store/Store';
 import { Navbar } from './components/Navbar/Navbar';
 
 function App() {
