@@ -1,9 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import { Offcanvas, Stack } from 'react-bootstrap';
+import { Offcanvas, Stack, Button } from 'react-bootstrap';
 import { useShoppingCart } from '../../context/ShoppingCartContext';
 import { CartItem } from '../CartItem/CartItem';
 import { formatPrice } from '../../utils/formatPrice';
+import couponCode from '../../data/CouponCode.json';
+import './ShoppingCart.css';
 
 type ShoppingCartProps = {
 	isOpen: boolean;
@@ -11,22 +13,25 @@ type ShoppingCartProps = {
 
 export function ShoppingCart({ isOpen }: ShoppingCartProps) {
 	const { closeCart, cartItems, products, cartQuantity } = useShoppingCart();
-	var shippingCost = 0;
+	const [inputValue, setInputValue] = useState('');
+	const [discountCode, setDiscountCode] = useState('');
+	const [shippingCost, setShippingCost] = useState(0);
 
 	useEffect(() => {
-		addShippingCost(cartQuantity);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [cartQuantity, shippingCost]);
+		if (discountCode === 'freeShipping!') {
+			setShippingCost(0);
+		} else {
+			setShippingCost(addShippingCost(cartQuantity));
+		}
+	}, [discountCode, cartQuantity]);
 
 	function addShippingCost(num: number) {
 		if (num < 20) {
-			shippingCost = 7;
-			return formatPrice(7);
+			return 7;
 		} else if (num < 40) {
-			shippingCost = 5;
-			return formatPrice(5);
+			return 5;
 		} else {
-			return 'FREE';
+			return 0;
 		}
 	}
 
@@ -38,7 +43,22 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
 
 		const totalPrice = totalItemsPrice + shippingCost;
 
+		console.log('TOTAL PRICE', totalPrice);
+
 		return formatPrice(totalPrice);
+	}
+
+	function submitDiscountCode() {
+		const freeShippingCode = couponCode.find(
+			item => item.Code === 'freeShipping!'
+		);
+
+		if (freeShippingCode?.Code === inputValue) {
+			console.log('inputValue', inputValue);
+			setDiscountCode('freeShipping!');
+		} else {
+			setDiscountCode('');
+		}
 	}
 
 	return (
@@ -46,8 +66,11 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
 			<Offcanvas.Header closeButton>
 				<Offcanvas.Title>Cart</Offcanvas.Title>
 			</Offcanvas.Header>
-			<Offcanvas.Body>
-				<Stack gap={3}>
+			<Offcanvas.Body style={{ position: 'relative' }}>
+				<Stack
+					gap={3}
+					className={`${cartItems.length === 0 ? 'd-none' : ''}`}
+				>
 					{cartItems.map(item => (
 						<CartItem key={item.id} {...item} />
 					))}
@@ -55,12 +78,39 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
 						<span style={{ paddingRight: '8px' }}>
 							Shipping Cost{''}
 						</span>
-						<span>{addShippingCost(cartQuantity)}</span>
+						<span>
+							{shippingCost === 0
+								? 'FREE'
+								: addShippingCost(cartQuantity)}
+						</span>
 					</div>
 					<div className='ms-auto fw-bold fs-5'>
 						Total {calculateTotalPrice()}
 					</div>
 				</Stack>
+				<div className='offcanvas-footer'>
+					<input
+						placeholder='Apply Discount Code'
+						className='coupon-code-input'
+						onChange={e => setInputValue(e.target.value)}
+					/>
+					<div className='coupon-code'>
+						<Button
+							type='submit'
+							className='btn-success coupon-code-btn'
+							onClick={submitDiscountCode}
+						>
+							{'Submit Discount Code'}
+						</Button>
+
+						<Button
+							type='submit'
+							className='btn-success submit-button'
+						>
+							{'BUY'}
+						</Button>
+					</div>
+				</div>
 			</Offcanvas.Body>
 		</Offcanvas>
 	);
