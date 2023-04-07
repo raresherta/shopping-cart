@@ -1,5 +1,6 @@
 import { ReactNode, createContext, useContext, useState } from 'react';
 import { ShoppingCart } from '../components/ShoppingCart/ShoppingCart';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 type Products = {
 	id: number;
@@ -31,6 +32,9 @@ type ShoppingCartContextInterface = {
 	removeFromCart: (id: number) => void;
 	getItems: () => void;
 	products: Products[];
+	sortProductsAlphabetically: () => void;
+	sortProductsByPrice: () => void;
+	filterByCategory: (category: string) => void;
 };
 
 const ShoppingCartContext = createContext({} as ShoppingCartContextInterface);
@@ -41,7 +45,10 @@ export function useShoppingCart() {
 
 export function ShoppingCartProvider({ children }: ShoppingCartProviderProps) {
 	const [isOpen, setIsOpen] = useState(false);
-	const [cartItems, setCartItems] = useState<CartItem[]>([]);
+	const [cartItems, setCartItems] = useLocalStorage<CartItem[]>(
+		'shopping-cart',
+		[]
+	);
 	const [products, setProducts] = useState<any>([]);
 
 	const openCart = () => setIsOpen(true);
@@ -63,6 +70,43 @@ export function ShoppingCartProvider({ children }: ShoppingCartProviderProps) {
 		} catch (error) {
 			console.error(error);
 		}
+	};
+
+	const filterByCategory = (category: string) => {
+		const filteredProducts = products.filter((product: any) =>
+			product.categories.includes(category)
+		);
+		setProducts(filteredProducts);
+	};
+
+	const sortProductsAlphabetically = () => {
+		setProducts((prevProducts: Products[]) => {
+			const sortedProducts = [...prevProducts].sort((a, b) => {
+				if (a.name < b.name) {
+					return -1;
+				}
+				if (a.name > b.name) {
+					return 1;
+				}
+				return 0;
+			});
+			return sortedProducts;
+		});
+	};
+
+	const sortProductsByPrice = () => {
+		setProducts((prevProducts: Products[]) => {
+			const sortedProducts = [...prevProducts].sort((a, b) => {
+				if (a.price < b.price) {
+					return -1;
+				}
+				if (a.price > b.price) {
+					return 1;
+				}
+				return 0;
+			});
+			return sortedProducts;
+		});
 	};
 
 	function getItemQuantity(id: number) {
@@ -119,7 +163,10 @@ export function ShoppingCartProvider({ children }: ShoppingCartProviderProps) {
 				openCart,
 				closeCart,
 				getItems,
-				products
+				products,
+				sortProductsAlphabetically,
+				sortProductsByPrice,
+				filterByCategory
 			}}
 		>
 			{children}
