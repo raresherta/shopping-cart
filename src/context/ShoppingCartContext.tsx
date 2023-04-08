@@ -32,9 +32,11 @@ type ShoppingCartContextInterface = {
 	removeFromCart: (id: number) => void;
 	getItems: () => void;
 	products: Products[];
+	productsCopy: Products[];
 	sortProductsAlphabetically: () => void;
 	sortProductsByPrice: () => void;
 	filterByCategory: (category: string) => void;
+	resetItems: () => void;
 };
 
 const ShoppingCartContext = createContext({} as ShoppingCartContextInterface);
@@ -49,7 +51,8 @@ export function ShoppingCartProvider({ children }: ShoppingCartProviderProps) {
 		'shopping-cart',
 		[]
 	);
-	const [products, setProducts] = useState<any>([]);
+	const [products, setProducts] = useState<Products[]>([]);
+	const [productsCopy, setProductsCopy] = useState<Products[]>([]);
 
 	const openCart = () => setIsOpen(true);
 	const closeCart = () => setIsOpen(false);
@@ -67,46 +70,33 @@ export function ShoppingCartProvider({ children }: ShoppingCartProviderProps) {
 			const data = await response.json();
 			console.log('PRODUCTS', data);
 			setProducts(data);
+			setProductsCopy(data);
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
+	function resetItems() {
+		setProductsCopy(products);
+	}
+
 	const filterByCategory = (category: string) => {
 		const filteredProducts = products.filter((product: any) =>
 			product.categories.includes(category)
 		);
-		setProducts(filteredProducts);
+		setProductsCopy(filteredProducts);
 	};
 
 	const sortProductsAlphabetically = () => {
-		setProducts((prevProducts: Products[]) => {
-			const sortedProducts = [...prevProducts].sort((a, b) => {
-				if (a.name < b.name) {
-					return -1;
-				}
-				if (a.name > b.name) {
-					return 1;
-				}
-				return 0;
-			});
-			return sortedProducts;
-		});
+		const sortedArray = [...productsCopy].sort((a, b) =>
+			a.name.localeCompare(b.name)
+		);
+		setProductsCopy(sortedArray);
 	};
 
 	const sortProductsByPrice = () => {
-		setProducts((prevProducts: Products[]) => {
-			const sortedProducts = [...prevProducts].sort((a, b) => {
-				if (a.price < b.price) {
-					return -1;
-				}
-				if (a.price > b.price) {
-					return 1;
-				}
-				return 0;
-			});
-			return sortedProducts;
-		});
+		const sortedArray = [...productsCopy].sort((a, b) => a.price - b.price);
+		setProductsCopy(sortedArray);
 	};
 
 	function getItemQuantity(id: number) {
@@ -166,7 +156,9 @@ export function ShoppingCartProvider({ children }: ShoppingCartProviderProps) {
 				products,
 				sortProductsAlphabetically,
 				sortProductsByPrice,
-				filterByCategory
+				filterByCategory,
+				productsCopy,
+				resetItems
 			}}
 		>
 			{children}

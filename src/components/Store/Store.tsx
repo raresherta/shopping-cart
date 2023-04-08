@@ -8,10 +8,11 @@ import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 const Store: React.FC = () => {
 	const {
 		getItems,
-		products,
 		sortProductsAlphabetically,
 		sortProductsByPrice,
-		filterByCategory
+		filterByCategory,
+		productsCopy,
+		resetItems
 	} = useShoppingCart();
 	useEffect(() => {
 		getItems();
@@ -31,7 +32,7 @@ const Store: React.FC = () => {
 					</Dropdown.Toggle>
 
 					<DropdownMenu>
-						<DropdownItem onClick={() => filterByCategory('')}>
+						<DropdownItem onClick={() => resetItems()}>
 							All
 						</DropdownItem>
 						<DropdownItem
@@ -68,7 +69,7 @@ const Store: React.FC = () => {
 				</Dropdown>
 			</Stack>
 			<Row md={2} xs={1} lg={3} className='g-3'>
-				{products.map((product: any) => (
+				{productsCopy.map((product: any) => (
 					<Col key={product.id}>
 						<StoreItem {...product} />
 					</Col>
