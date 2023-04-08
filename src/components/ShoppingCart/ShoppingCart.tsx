@@ -42,24 +42,56 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
 		}, 0);
 
 		const totalPrice = totalItemsPrice + shippingCost;
-
-		console.log('TOTAL PRICE', totalPrice);
-
 		return formatPrice(totalPrice);
 	}
 
 	function submitDiscountCode() {
-		const freeShippingCode = couponCode.find(
-			item => item.Code === 'freeShipping!'
-		);
-
-		if (freeShippingCode?.Code === inputValue) {
-			console.log('inputValue', inputValue);
-			setDiscountCode('freeShipping!');
-		} else {
-			setDiscountCode('');
-		}
+		couponCode.forEach(code => {
+			if (code.Code === inputValue) {
+				setDiscountCode(inputValue);
+			}
+		});
 	}
+
+	const submitProducts = async () => {
+		couponCode.forEach(code => {
+			if (code.Code === inputValue) {
+				setDiscountCode(inputValue);
+			}
+		});
+
+		const updatedCartItems = cartItems.map(item => ({
+			productId: item.id,
+			unitQuantity: item.quantity
+		}));
+
+		const body = {
+			items: updatedCartItems,
+			couponCode: discountCode
+		};
+
+		try {
+			const response = await fetch(
+				'https://man-shopping-cart-test.azurewebsites.net/api/Cart/CalculateCost',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ data: body })
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			const data = await response.json();
+			console.log(data);
+		} catch (error) {
+			console.error(error);
+		}
+	};
 
 	return (
 		<Offcanvas show={isOpen} onHide={closeCart} placement='end'>
@@ -106,6 +138,7 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
 						<Button
 							type='submit'
 							className='btn-success submit-button'
+							onClick={submitProducts}
 						>
 							{'BUY'}
 						</Button>
