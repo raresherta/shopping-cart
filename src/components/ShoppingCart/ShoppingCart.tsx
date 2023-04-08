@@ -16,9 +16,10 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
 	const [inputValue, setInputValue] = useState('');
 	const [discountCode, setDiscountCode] = useState('');
 	const [shippingCost, setShippingCost] = useState(0);
+	const cost = addShippingCost(cartQuantity);
 
 	useEffect(() => {
-		if (discountCode === 'freeShipping!') {
+		if (discountCode === couponCode[0].Code) {
 			setShippingCost(0);
 		} else {
 			setShippingCost(addShippingCost(cartQuantity));
@@ -111,9 +112,7 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
 							Shipping Cost{''}
 						</span>
 						<span>
-							{shippingCost === 0
-								? 'FREE'
-								: addShippingCost(cartQuantity)}
+							{shippingCost === 0 ? 'FREE' : formatPrice(cost)}
 						</span>
 					</div>
 					<div className='ms-auto fw-bold fs-5'>
