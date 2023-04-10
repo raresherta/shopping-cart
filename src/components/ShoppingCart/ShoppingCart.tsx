@@ -26,6 +26,12 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
 		}
 	}, [discountCode, cartQuantity]);
 
+	/**
+	 * Determines the shipping cost based on the order total amount.
+	 *
+	 * @param {number} num The total order amount.
+	 * @returns {number} Returns the shipping cost based on the order total amount.
+	 */
 	function addShippingCost(num: number) {
 		if (num < 20) {
 			return 7;
@@ -36,6 +42,11 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
 		}
 	}
 
+	/**
+	 * Calculates the total price of all items in the cart, including shipping costs.
+	 *
+	 * @returns {string} The formatted total price.
+	 */
 	function calculateTotalPrice() {
 		const totalItemsPrice = cartItems.reduce((total, cartItem) => {
 			const item = products.find((i: any) => i.id === cartItem.id);
@@ -46,6 +57,9 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
 		return formatPrice(totalPrice);
 	}
 
+	/**
+	 * Sets the discount code in the state if the input value matches one of the available codes.
+	 */
 	function submitDiscountCode() {
 		couponCode.forEach(code => {
 			if (code.Code === inputValue) {
@@ -54,6 +68,12 @@ export function ShoppingCart({ isOpen }: ShoppingCartProps) {
 		});
 	}
 
+	/**
+	 * Submits the products in the cart for cost calculation by calling the API.
+	 * If a valid discount code is entered, sets the discount code in state.
+	 *
+	 * @returns {Promise<void>} Returns a promise that resolves after the cost calculation API call is complete.
+	 */
 	const submitProducts = async () => {
 		couponCode.forEach(code => {
 			if (code.Code === inputValue) {

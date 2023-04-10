@@ -62,13 +62,16 @@ export function ShoppingCartProvider({ children }: ShoppingCartProviderProps) {
 		0
 	);
 
+	/**
+		*Fetches the list of products from the API and updates the state with the retrieved data.
+		@returns {Promise<void>} A promise that resolves when the API call is successful and data is set in the state,.
+	 */
 	const getItems = async () => {
 		try {
 			const response = await fetch(
 				'https://man-shopping-cart-test.azurewebsites.net/api/Products'
 			);
 			const data = await response.json();
-			console.log('PRODUCTS', data);
 			setProducts(data);
 			setProductsCopy(data);
 		} catch (error) {
@@ -80,6 +83,11 @@ export function ShoppingCartProvider({ children }: ShoppingCartProviderProps) {
 		setProductsCopy(products);
 	}
 
+	/**
+	 * Filters the products by category and sets the filtered products as the new state.
+	 *
+	 * @param {string} category The category to filter the products by.
+	 */
 	const filterByCategory = (category: string) => {
 		const filteredProducts = products.filter((product: any) =>
 			product.categories.includes(category)
@@ -87,6 +95,9 @@ export function ShoppingCartProvider({ children }: ShoppingCartProviderProps) {
 		setProductsCopy(filteredProducts);
 	};
 
+	/**
+	 * Sorts the products alphabetically by name and sets the sorted products as the new state.
+	 */
 	const sortProductsAlphabetically = () => {
 		const sortedArray = [...productsCopy].sort((a, b) =>
 			a.name.localeCompare(b.name)
@@ -94,6 +105,9 @@ export function ShoppingCartProvider({ children }: ShoppingCartProviderProps) {
 		setProductsCopy(sortedArray);
 	};
 
+	/**
+	 * Sorts the products by price and sets the sorted products as the new state.
+	 */
 	const sortProductsByPrice = () => {
 		const sortedArray = [...productsCopy].sort((a, b) => a.price - b.price);
 		setProductsCopy(sortedArray);
@@ -103,6 +117,11 @@ export function ShoppingCartProvider({ children }: ShoppingCartProviderProps) {
 		return cartItems.find(item => item.id === id)?.quantity || 0;
 	}
 
+	/**
+	 * Increases the quantity of a product in the cart, or adds it to the cart if it is not already there.
+	 *
+	 * @param {number} id The ID of the product to increase the quantity of.
+	 */
 	function increaseCartQuantity(id: number) {
 		setCartItems(currItems => {
 			if (currItems.find(item => item.id === id) == null) {
@@ -119,6 +138,11 @@ export function ShoppingCartProvider({ children }: ShoppingCartProviderProps) {
 		});
 	}
 
+	/**
+	 * Decreases the quantity of a product in the cart, or removes it from the cart if its quantity becomes 0.
+	 *
+	 * @param {number} id The ID of the product to decrease the quantity of.
+	 */
 	function decreaseCartQuantity(id: number) {
 		setCartItems(currItems => {
 			if (currItems.find(item => item.id === id)?.quantity === 1) {
@@ -135,6 +159,11 @@ export function ShoppingCartProvider({ children }: ShoppingCartProviderProps) {
 		});
 	}
 
+	/**
+	 * Removes a product from the cart by its ID.
+	 *
+	 * @param {number} id The ID of the product to remove from the cart.
+	 */
 	function removeFromCart(id: number) {
 		setCartItems(currItems => {
 			return currItems.filter(item => item.id !== id);
